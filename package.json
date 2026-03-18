@@ -1,0 +1,32 @@
+{
+  "name": "calccard-torres-desktop",
+  "version": "1.0.0",
+  "description": "App Desktop CalcCard Torres",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac"
+  },
+  "author": "Sanzony Tech",
+  "license": "ISC",
+  "build": {
+    "appId": "com.sanzony.calccardtorres",
+    "productName": "CalcCard Torres",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "icon": "icon-512.png",
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^41.0.3",
+    "electron-builder": "^26.8.1"
+  }
+}

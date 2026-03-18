@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcCard Torres | Simulador de Parcelamentos</title>
+    <meta name="description" content="Simule parcelamentos com e sem juros de forma rápida">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0A0A0A">
+    
+    <!-- iOS Support (Safari) -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CalcCard">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header">
+            <h1 class="title">CalcCard Torres</h1>
+            <p class="subtitle">Simule parcelamentos com e sem juros de forma rápida.</p>
+        </header>
+
+        <!-- INPUT SECTION -->
+        <section class="input-section card">
+            <div class="input-group">
+                <label for="purchase-value">Valor da Compra (R$)</label>
+                <input 
+                    type="text" 
+                    id="purchase-value" 
+                    placeholder="Digite o valor da compra" 
+                    inputmode="numeric"
+                    autocomplete="off"
+                >
+            </div>
+            
+            <div class="input-group">
+                <label for="interest-select">Taxa de Juros (a.m.)</label>
+                <div class="interest-input-container">
+                    <select id="interest-select" class="custom-select">
+                        <option value="0">Sem juros (0%)</option>
+                        <option value="0.01">1,0% am</option>
+                        <option value="0.015">1,5% am</option>
+                        <option value="0.02">2,0% am</option>
+                        <option value="0.025" selected>2,5% am</option>
+                        <option value="custom">Outro valor... ✍️</option>
+                    </select>
+                    <div id="custom-interest-wrapper" class="custom-interest-wrapper hidden">
+                        <input 
+                            type="number" 
+                            id="custom-interest-input" 
+                            placeholder="Ex: 3.5" 
+                            step="0.1"
+                            min="0"
+                        >
+                        <span class="percent-symbol">%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="error-message" class="error-message"></div>
+
+            <div class="button-group">
+                <button id="btn-calculate" class="btn btn-primary">Calcular</button>
+                <button id="btn-clear" class="btn btn-secondary">Limpar</button>
+            </div>
+        </section>
+
+        <!-- RESULTS CONTAINER -->
+        <div id="results-container" class="results-container hidden">
+            <!-- QUICK SUMMARY -->
+            <section class="summary-section">
+                <div class="summary-grid">
+                    <div class="summary-card var-original">
+                        <span class="label">Valor Original</span>
+                        <span class="value" id="sum-original">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card var-no-interest">
+                        <span class="label">3x sem juros (cada)</span>
+                        <span class="value" id="sum-3x-no-interest">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card var-no-interest">
+                        <span class="label">6x sem juros (cada)</span>
+                        <span class="value" id="sum-6x-no-interest">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card var-interest">
+                        <span class="label">Maior Total (3x em 12x)</span>
+                        <span class="value" id="sum-3x-max">R$ 0,00</span>
+                    </div>
+                    <div class="summary-card var-interest">
+                        <span class="label">Maior Total (6x em 12x)</span>
+                        <span class="value" id="sum-6x-max">R$ 0,00</span>
+                    </div>
+                </div>
+                
+                <button id="btn-copy" class="btn btn-outline-success copy-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    <span>Copiar Resumo p/ WhatsApp</span>
+                </button>
+            </section>
+
+            <!-- DETAILED TABLES (TABS) -->
+            <section class="tables-section card">
+                
+                <!-- TAB CONTROLS -->
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-target="tab-3x">Plano 3x sem juros</button>
+                    <button class="tab-btn" data-target="tab-6x">Plano 6x sem juros</button>
+                </div>
+
+                <!-- TAB CONTENT -->
+                <div class="tabs-content">
+                    
+                    <!-- PLANO 3X -->
+                    <div id="tab-3x" class="tab-pane active">
+                        <div class="table-responsive">
+                            <table id="table-3x">
+                                <thead>
+                                    <tr>
+                                        <th>Parcela</th>
+                                        <th>Meses C/ Juros</th>
+                                        <th>Juros (%)</th>
+                                        <th>Juros (R$)</th>
+                                        <th>Total Sem Juros</th>
+                                        <th>Total Com Juros</th>
+                                        <th>Valor Parcela</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rows injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PLANO 6X -->
+                    <div id="tab-6x" class="tab-pane">
+                        <div class="table-responsive">
+                            <table id="table-6x">
+                                <thead>
+                                    <tr>
+                                        <th>Parcela</th>
+                                        <th>Meses C/ Juros</th>
+                                        <th>Juros (%)</th>
+                                        <th>Juros (R$)</th>
+                                        <th>Total Sem Juros</th>
+                                        <th>Total Com Juros</th>
+                                        <th>Valor Parcela</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rows injected by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+        
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>Desenvolvido por Sanzony Tech™ &copy; 2026</p>
+        </footer>
+    </div>
+
+    <!-- JS -->
+    <script src="script.js"></script>
+</body>
+</html>
