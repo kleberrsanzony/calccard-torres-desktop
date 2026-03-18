@@ -16,6 +16,10 @@
     "directories": {
       "output": "dist"
     },
+    "mac": {
+      "icon": "icon-512.png",
+      "target": "pkg"
+    },
     "win": {
       "icon": "icon-512.png",
       "target": "nsis"
